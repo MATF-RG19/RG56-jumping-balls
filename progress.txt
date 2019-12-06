@@ -1,0 +1,10 @@
+za sledecu nedelju:
+
+-animacija skoka i mozda dodatne funkcionalnosti za kameru
+
+
+
+1. nedelja:
+
+-dodata osnovna scena (tri trake i dve lopte)
+
