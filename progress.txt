@@ -1,7 +1,11 @@
 za sledecu nedelju:
 
--animacija skoka i mozda dodatne funkcionalnosti za kameru
+-generisanje i animacija prepreka 
 
+
+2.nedelja:
+
+-odradjene animacije skoka i pomeranja levo i desno za obe loptice
 
 
 1. nedelja:
