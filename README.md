@@ -8,16 +8,19 @@ Igrac kontrolise dve nezavisne loptice i preskace prepreke
 
 Kontrole:
 
-w/W-skok leve loptice
+p/P - pocetak igra/pauziranje
 
-a/A-pomeranje leve loptice ulevo
+w/W - skok leve loptice
 
-d/D-pomeranje leve loptice udesno
+a/A - pomeranje leve loptice ulevo
+
+d/D - pomeranje leve loptice udesno
 
 
-i/I-skok desne loptice
 
-j/J-pomeranje desne loptice ulevo
+i/I - skok desne loptice
 
-l/L-pomeranje desne loptice udesno
+j/J - pomeranje desne loptice ulevo
+
+l/L - pomeranje desne loptice udesno
 
