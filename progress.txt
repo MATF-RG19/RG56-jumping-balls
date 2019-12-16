@@ -1,9 +1,15 @@
 za sledecu nedelju:
 
+detekcija kolizija sa preprekama
+
+
+
+3. nedelja:
+
 -generisanje i animacija prepreka 
 
 
-2.nedelja:
+2. nedelja:
 
 -odradjene animacije skoka i pomeranja levo i desno za obe loptice
 

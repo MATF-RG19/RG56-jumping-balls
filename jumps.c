@@ -1,9 +1,11 @@
-#include<GL/glut.h>
-#include<stdlib.h>
+#include <GL/glut.h>
+#include <stdlib.h>
+#include <time.h>
 #include "funkcije.h"
 
 #define TIMER_ID1 0  //za skok leve
 #define TIMER_ID2 1  //za  skok desne
+#define TIMER_ID3  3 // za animaciju prepreka	
 #define TIMER_INTERVAL 20
 
 extern int animating_left;  //za skok leve
@@ -16,13 +18,10 @@ int going_down_right=0;
 
 //pocetne pozicije za levu (lbx,lby,lbz)  i desnu (rbx,rby,rbz) lopticu
 //deklarisane i inicijalizovane u main.c
-extern GLfloat lbx;
-extern GLfloat lby;
-extern GLfloat lbz;
-extern GLfloat rbx;
-extern GLfloat rby;
-extern GLfloat rbz;
+extern GLfloat lbx, lby, lbz;
+extern GLfloat rbx, rby, rbx;
 
+extern int game_started;
 
 //pomocna funkcija za crtanje koordinatnih osa i pomocnih tacaka na x osi
 void drawCoord(void){
@@ -99,12 +98,21 @@ void on_keyboard(unsigned char key, int x, int y){
             rbx+=0.1;
             glutPostRedisplay();
             break;    
-					
-	}
+
+        case 'p':
+        case 'P':
+            if(!game_started){  //pocetak igre
+                    glutTimerFunc(TIMER_INTERVAL, on_timer_obstacle,TIMER_ID3);
+                    game_started=1;			
+            }
+            else{ //ako hocemo da pauziramo i zaustavimo animacije prepreka
+                game_started=0;
+            }
+            break;
+    }
 	
 	glutPostRedisplay();
 }
-
 
 
 //skok leve loptice
@@ -171,6 +179,9 @@ void on_timer_right(int value){
         glutTimerFunc(TIMER_INTERVAL,on_timer_right,TIMER_ID2);
     }
 }
+
+
+
 
 
 
