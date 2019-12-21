@@ -1,7 +1,14 @@
 za sledecu nedelju:
 
-detekcija kolizija sa preprekama
 
+-osvetljenje
+
+
+4. nedelja: 
+
+-detekcija kolizija i ostalh stanja koja prekidaju igru
+-poboljsano generisanje prepreka (sada se mogu nacu u dva reda po vertikali)
+-poboljsano kretanje igraca, sada se aniamcije loptica medjusobno ne prekidaju i glatko se pomeraju
 
 
 3. nedelja:
