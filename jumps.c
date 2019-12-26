@@ -35,6 +35,9 @@ extern float o4x,o4y,o4z;
 extern int jdown,ldown;
 extern int adown,ddown;
 
+extern int score;
+extern float speed_coef;
+
 void on_keyboard_up (unsigned char key, int x, int y){
     // ako je neki taster pusten, vracamo njegocu statusnu promenljivu na 0
     switch (key){
@@ -67,8 +70,8 @@ void on_keyboard(unsigned char key, int x, int y){
 		case 'W':
             if (game_started){
                 if(!animating_left){
-                    glutTimerFunc(TIMER_INTERVAL, on_timer_left,TIMER_ID1);
                     animating_left=1;
+                    glutTimerFunc(TIMER_INTERVAL, on_timer_left,TIMER_ID1);
                 }
             }
 			break;
@@ -86,8 +89,8 @@ void on_keyboard(unsigned char key, int x, int y){
 		case 'I':
             if (game_started){
                 if(!animating_right){
-                    glutTimerFunc(TIMER_INTERVAL, on_timer_right,TIMER_ID2);
                     animating_right=1;
+                    glutTimerFunc(TIMER_INTERVAL, on_timer_right,TIMER_ID2);
                 }
             }
 			break; 
@@ -103,8 +106,8 @@ void on_keyboard(unsigned char key, int x, int y){
         case 'p':
         case 'P':
             if(!game_started){  //pocetak igre
-                    glutTimerFunc(TIMER_INTERVAL, on_timer_obstacle,TIMER_ID3);
                     game_started=1;
+                    glutTimerFunc(TIMER_INTERVAL, on_timer_obstacle,TIMER_ID3);
             }
             else{ //ako hocemo da pauziramo i zaustavimo animacije prepreka
                 game_started=0;
@@ -114,9 +117,17 @@ void on_keyboard(unsigned char key, int x, int y){
         case 'R':
             //restartovanje igre, sve relevantne promenljive se vracaju na pocetne vrednosti
             game_started=0;
+            score=0;
+            
+            speed_coef=0.25;
             
             animating_left=0; 
             animating_right=0; 
+            
+            going_up_left=1;
+            going_down_left=0;
+            going_up_right=1;
+            going_down_right=0;
  
             lbx=0.6;
             lby=0.2;
@@ -141,6 +152,8 @@ void on_keyboard(unsigned char key, int x, int y){
             o4x=0;
             o4y=0.35;
             o4z=-20;
+            
+            glutPostRedisplay();
             break;
     }
 	

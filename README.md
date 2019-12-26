@@ -9,6 +9,8 @@ Igrac kontrolise dve nezavisne loptice i preskace prepreke
 Kontrole:
 
 p/P - pocetak igra/pauziranje
+r/R - restartovanje
+
 
 w/W - skok leve loptice
 

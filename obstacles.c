@@ -1,6 +1,7 @@
 #include <GL/glut.h>
 #include <stdlib.h>
 #include <time.h>
+#include <stdio.h>
 #include "funkcije.h"
 
 #define TIMER_ID3  3 // za animaciju prepreka	
@@ -18,6 +19,15 @@ int in_view1=0;
 int in_view2=0;
 int in_view3=0;
 int in_view4=0;
+
+//parametar koji sluzi za poemranje kamere na pocetku igre
+extern float viewParam;
+
+//broj poena
+extern int score;
+
+//brzina kretanja prepreka;
+extern float speed_coef;
 
 void draw_obstacles(){
     
@@ -53,11 +63,19 @@ void on_timer_obstacle(int value){
 		return;		
 	}
 	
+	//na pocetku igre, kameru treba spustiti, to se kontrolise ovim parametrom
+	if(viewParam<3){
+	   viewParam+=0.15;
+    }
+	
 	//ako je neka prepreka izasla iz vidnog polja, njena z koordina se postavlja na default vrednost -20
 	//sto oznacava delu koda ispod da treba da se nasumicno generise u kojoj od tri trake ce se ta prepreka sledece pojaviti
 	if(o1z>=5){
         o1z=-20;
         in_view1=0;
+        //psoto su sve z koordinate prepreka iste, dovoljno je pogledati da li se jedna
+        //od njih nalazi van vidnog polja. U tom slucaju uvecavamo poene jer je igrac uspesno izbegao rpepreke
+        score+=4;
     }
     if(o2z>=5){
         o2z=-20;
@@ -172,11 +190,19 @@ void on_timer_obstacle(int value){
         in_view4=1;
 	}
 	
+	
+	//u zavisnosti od osvojenih poena ubrzavamo kretanje prepreka
+    if (score<50) speed_coef=0.25; 
+    if (score>=50 && score<100) speed_coef=0.3; 
+    if (score>=100 && score<200) speed_coef=0.35; 
+    if (score>=200 && score<500) speed_coef=0.4;
+    if (score>=500) speed_coef=0.45;
+	
 	//ako je prepreka vidljiva, onda ima smisla animirati je (povecavati njenu z koordinatu)
-    if(in_view1) o1z+=0.25;
-    if(in_view2) o2z+=0.25;
-    if(in_view3) o3z+=0.25;
-    if(in_view4) o4z+=0.25;
+    if(in_view1) o1z+=speed_coef;
+    if(in_view2) o2z+=speed_coef;
+    if(in_view3) o3z+=speed_coef;
+    if(in_view4) o4z+=speed_coef;
 	
     glutPostRedisplay();
     

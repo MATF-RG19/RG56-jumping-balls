@@ -1,7 +1,9 @@
 #include <GL/glut.h>
 #include <stdlib.h>
 #include <time.h>
+#include <stdio.h>
 #include "funkcije.h"
+#include <string.h>
 
 int game_started;
 
@@ -40,6 +42,12 @@ float o4z=-20;
 int jdown,ldown;
 int adown,ddown;
 
+float viewParam;
+
+int score;
+
+float speed_coef=0.2;
+
 
 int main(int argc,char **argv){
 
@@ -60,21 +68,25 @@ int main(int argc,char **argv){
     //zato iskljucujemo te ponovljene pozive. Ovo nam je potrebno samo za pomeranje loptica levo i desno, jer 
     //za skokove nije potrebno drzati taster
     glutIgnoreKeyRepeat(1);     
-    //na pcoetku nijedan taster nije pritisnut
+    //na pocetku nijedan taster nije pritisnut
     jdown=0;
     ldown=0;
     adown=0;
     ddown=0;
         
-	glClearColor(0.5,0.5,0.5,0);
+	glClearColor(0.1,0.5,0.7,0);
 	glEnable(GL_DEPTH_TEST);
     
-    	animating_left=0;  //inicijalizacija animacije skoka leve
-    	animating_right=0; //i desne loptice
+    animating_left=0;  //inicijalizacija animacije skoka leve
+    animating_right=0; //i desne loptice
 
-	srand(time(NULL));  //seed za nasumicne brojeve koji ce nam odredjivati polozaje prepreka
-        game_started=0;
+    srand(time(NULL));  //seed za nasumicne brojeve koji ce nam odredjivati polozaje prepreka
+    
+    game_started=0;
         
+    viewParam=0;
+
+    score=0;
 
 	glutMainLoop();
 
@@ -99,30 +111,44 @@ void on_reshape(int width,int height){
 void on_display(void){
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	gluLookAt(1.5,1,3,1.5,0,0,0,1,0);
-
+    
+    
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-
+    
+    //pri prvom pokretanju igre 
+    viewParam= viewParam < 3 ? viewParam : 3; 
+	gluLookAt(1.5,4-viewParam,0.5+viewParam,1.5,0,0,0,1,0);
+    
+    //osvetljenje
+    GLfloat light_pos[]={ 1.5,2,4,0};
+    GLfloat light_ambi[]={ 0.7,0.7,0.7,1};
+    GLfloat light_diff[]={ 0.7,0.7,0.7,1};
+    GLfloat light_spec[]={ 0.8,0.8,0.8,1};
+    
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+    glLightfv(GL_LIGHT0,GL_POSITION,light_pos);
+    glLightfv(GL_LIGHT0,GL_AMBIENT,light_ambi);
+    glLightfv(GL_LIGHT0,GL_DIFFUSE,light_diff);
+    glLightfv(GL_LIGHT0,GL_SPECULAR,light_spec);
+    
+    
 	glPushMatrix();   //prva traka sa preprekama (skroz levo)
 	 glScalef(1.0,0.5,40);
-	 glTranslatef(0.5,-0.5,0.0);	
-	 glColor3f(0.0,1.0,1.0);
+	 glTranslatef(0.5,-0.5,0.0);
 	 glutSolidCube(1);
 	glPopMatrix();
 
 	glPushMatrix();   //druga traka sa preprekama  (srednja)
 	 glScalef(1.0,0.5,40);
-	 glTranslatef(1.5,-0.5,0.0);	
-	 glColor3f(0.5,1.5,1.5);
+	 glTranslatef(1.5,-0.5,0.0);
 	 glutSolidCube(1);
 	glPopMatrix();
 
 	glPushMatrix();   //treca traka sa preprekama (skroz denso)
 	 glScalef(1.0,0.5,40);
-	 glTranslatef(2.5,-0.5,0.0);	
-	 glColor3f(1,1,1);
+	 glTranslatef(2.5,-0.5,0.0);
 	 glutSolidCube(1);
 	glPopMatrix();
 
@@ -144,13 +170,11 @@ void on_display(void){
 
 	glPushMatrix();   //leva loptica
 	 glTranslatef(lbx, lby, lbz);
-	 glColor3f(1,0.6,0.7);
 	 glutSolidSphere(0.2,50,50);
 	glPopMatrix();
 
 	glPushMatrix();   //desna loptica
 	 glTranslatef(rbx, rby, rbz);
-	 glColor3f(0.3,0.9,0.4);
 	 glutSolidSphere(0.2,50,50);
 	glPopMatrix();
 
@@ -158,7 +182,93 @@ void on_display(void){
     //iscrtavanje nasumicnih prepreka
     draw_obstacles();
     
+    
+    //ako jos uvek nismo poceli igru, treba priakazati odgovarajuce poruku
+    if (viewParam<0.3){
+        glColor3f(1, 1, 1);
+        glMatrixMode(GL_PROJECTION);
+        glPushMatrix();
+        glLoadIdentity();
+        gluOrtho2D(0, window_width, 0, window_height);
+        glMatrixMode(GL_MODELVIEW);
+        glPushMatrix();
+        glLoadIdentity();
+    
+        char menu_msg[30];
+        sprintf(menu_msg,"JUMPING BALLS v1.0");
+        glRasterPos2i(window_width/2-120, window_height/2);
+        glutBitmapString(GLUT_BITMAP_TIMES_ROMAN_24, menu_msg);
+    
+        char menu_msg1[30];
+        sprintf(menu_msg1,"Press 'p' to start");
+        glRasterPos2i(window_width/2-70, window_height/2.3);
+        glutBitmapString(GLUT_BITMAP_HELVETICA_18, menu_msg1);
+    
+        glPopMatrix();
+        glMatrixMode(GL_PROJECTION);
+        glPopMatrix();
+    }
+    
+    
+    //ako je igra u toku, treba u gornjem desnom uglu prikazati
+    //trenutni broj poena i trenutnu brzinu kretanja prepreka
+    if(game_started){
+        glColor3f(1, 1, 1);
+        glMatrixMode(GL_PROJECTION);
+        glPushMatrix();
+        glLoadIdentity();
+        gluOrtho2D(0, window_width, 0, window_height);
+        glMatrixMode(GL_MODELVIEW);
+        glPushMatrix();
+        glLoadIdentity();
+    
+        //ispis poena
+        char score_msg[20];
+        sprintf(score_msg,"Score:  %d",score);
+        glRasterPos2i(window_width-200, window_height-50);
+        glutBitmapString(GLUT_BITMAP_HELVETICA_18, score_msg);
+    
+        //ispis brzine prepreka
+        char obstacle_speed[40];
+        sprintf(obstacle_speed,"Obstacle Speed:  %.2f",speed_coef);
+        glRasterPos2i(window_width-200, window_height-75);
+        glutBitmapString(GLUT_BITMAP_HELVETICA_18, obstacle_speed);
+    
+        glPopMatrix();
+        glMatrixMode(GL_PROJECTION);
+        glPopMatrix();
+    }
+    
+    
+   //prekid igre ako se dodje u neko game-ending stanje 
    if (is_there_a_collision()){
+        
+        glColor3f(1, 1, 1);
+        glMatrixMode(GL_PROJECTION);
+        glPushMatrix();
+        glLoadIdentity();
+        gluOrtho2D(0, window_width, 0, window_height);
+        glMatrixMode(GL_MODELVIEW);
+        glPushMatrix();
+        glLoadIdentity();
+    
+        //game over ispis
+        char game_over_msg[50];
+        sprintf(game_over_msg,"   GAME OVER!\nPress 'r' to try again");
+        glRasterPos2i(window_width/2-70, window_height/2);
+        glutBitmapString(GLUT_BITMAP_TIMES_ROMAN_24, game_over_msg);
+    
+        //ispis osvojenih poena
+        char score_msg[21];
+        sprintf(score_msg,"      Your Score:  %d",score);
+        glRasterPos2i(window_width/2-70, window_height/2.5);
+        glutBitmapString(GLUT_BITMAP_HELVETICA_18, score_msg);
+    
+        glPopMatrix();
+        glMatrixMode(GL_PROJECTION);
+        glPopMatrix();
+       
+        //prekidanje svih animacija
         game_started=0;
         animating_left=0;
         animating_right=0;

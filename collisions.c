@@ -52,5 +52,13 @@ int are_players_coliding(GLfloat lbx, GLfloat lby, GLfloat lbz, GLfloat rbx, GLf
         return 1;
    }
    
+   //onemogucanavje da jedna loptica preskoci drugu
+   if( rbx-lbx <= 0.4 ){
+        printf("illegal jump attempt\n");
+        return 1;
+   }
+   
    return 0;
 }
+
+

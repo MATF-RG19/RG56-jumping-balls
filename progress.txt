@@ -1,13 +1,21 @@
 za sledecu nedelju:
 
+dodavanje tekstura
 
--osvetljenje
 
+5. nedelja:
+
+-dodato osvetljenje
+-dodate odgovarajuce poruke na pocetku i kraju igre
+-dodata start animacija (spustanje kamere u odgovarajucu poziciju) pri prvom pokretanju igre
+-dodat brojac poena 
+-brzina prepreka se sada pocevaca svaki put kada igrac osvoji odredjen broj poena,
+ brzina se moze videti u gornjem desnom uglu tokom igre
 
 4. nedelja: 
 
 -detekcija kolizija i ostalh stanja koja prekidaju igru
--poboljsano generisanje prepreka (sada se mogu nacu u dva reda po vertikali)
+-poboljsano generisanje prepreka (sada se mogu naci u dva reda po vertikali)
 -poboljsano kretanje igraca, sada se aniamcije loptica medjusobno ne prekidaju i glatko se pomeraju
 
 
