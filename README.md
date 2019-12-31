@@ -1,28 +1,32 @@
-# RG56-jumping-balls
-Jumping Balls
+# Jumping Balls
 
-Opis:
+### :memo: Opis:
 
-Igrac kontrolise dve nezavisne loptice i preskace prepreke
+Igrac kontrolise dve nezavisne loptice i preskace prepreke koje se nasumicno generisu u nedogled.
+Cilj igre je izdrzati sto duze i osvojiti sto veci broj poena.
 
+Na sledecim brojevima poena brzina prepreka se uvecava:
+50, 100, 200, 500
+___
+### :video_game: Kontrole:
+<kbd>p</kbd> - Pocetak igre / Pauziranje <br>
+<kbd>r</kbd> - Restartovanje <br>
+<br>
+<kbd>w</kbd> - Skok leve loptice <br>
+<kbd>a</kbd> - Pomeranje leve loptice ulevo <br>
+<kbd>d</kbd> - Pomeranje leve loptice udesno <br>
+<br>
+<kbd>i</kbd> - Skok desne loptice <br>
+<kbd>j</kbd> - Pomeranje desne loptice ulevo <br>
+<kbd>l</kbd> - Pomeranje desbe loptice udesno <br>
 
-Kontrole:
+___
+### :wrench: Pokretanje:
 
-p/P - pocetak igra/pauziranje
-r/R - restartovanje
-
-
-w/W - skok leve loptice
-
-a/A - pomeranje leve loptice ulevo
-
-d/D - pomeranje leve loptice udesno
-
-
-
-i/I - skok desne loptice
-
-j/J - pomeranje desne loptice ulevo
-
-l/L - pomeranje desne loptice udesno
-
+Otvoriti terminal i uneti sledeci niz komandi:
+```shell
+git clone https://github.com/MATF-RG19/RG56-jumping-balls
+cd RG56-jumping-balls
+make
+./jumping_balls
+```
