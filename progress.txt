@@ -1,7 +1,10 @@
-za sledecu nedelju:
 
-dodavanje tekstura
 
+6. nedelja:
+
+-dodate teksture objekata (nema teksture na lopticama da bi se videlo da ima osvetljenja u igrici)
+-dodata pozadina (nebo)
+-dodata je animacija za loptice kada neka od njih ispadne sa trake
 
 5. nedelja:
 
@@ -9,8 +12,7 @@ dodavanje tekstura
 -dodate odgovarajuce poruke na pocetku i kraju igre
 -dodata start animacija (spustanje kamere u odgovarajucu poziciju) pri prvom pokretanju igre
 -dodat brojac poena 
--brzina prepreka se sada pocevaca svaki put kada igrac osvoji odredjen broj poena,
- brzina se moze videti u gornjem desnom uglu tokom igre
+-brzina prepreka se sada pocevaca svaki put kada igrac osvoji odredjen broj poena, brzina se moze videti u gornjem desnom uglu tokom igre
 
 4. nedelja: 
 
