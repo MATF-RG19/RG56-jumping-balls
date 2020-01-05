@@ -1,4 +1,10 @@
+7. nedelja:
 
+-dodat health sistem. Igrac na pocetku ima 3hp i svaki sudar sa preprekom umanjuje hp za 1.
+-Na svakih 16 poena moze se pojaviti hp drop i ako ga igrac pokupi dodaje mu se 1hp (max je 3). Preostali hp se vidi u gornjem levom uglu
+-Bez obzira na preostali health igra se prekida ako neka od loptica ispadne sa terena
+-sada se pri pauziranju vidi tekst 'PAUSED' a skor, brzina i hp ostaju prikazani stop ranije nije bio slucaj.
+-Popravljen bag gde pauziranje ne zaustavlja animaciju skoka loptica
 
 6. nedelja:
 

@@ -17,6 +17,13 @@ extern float o4x, o4y, o4z;  //koordinate cetvrte prepreke
 extern GLfloat lbx, lby, lbz;
 extern GLfloat rbx, rby, rbz;
 
+//trenutno stanje hp-a
+extern int health;
+//koordinate za health drop
+extern float hx, hy, hz;
+//promenljive koje oznacavaju detekciju sudara za slucaj hp>1 su potrebne i ovde
+extern int not_detecting, detecting;
+
 //parametri animacija za slucaj kada neka od loptica ispadne sa trake
 int bounds_animation_left = 0;
 int bounds_animation_right = 0;
@@ -38,9 +45,15 @@ int is_there_a_collision(){
         
         printf("collison detected\n");
         return 1;
-    }
+    } 
     
-    //ako je bilo koja loptica izasla sa traka
+    //nema nikakve kolizije
+    return 0;
+}
+
+//provera da li je neka od loptica ispala sa traka
+//ako jeste treba odmah prekinuti igru bez obzira na remaining hp
+int is_out_of_bounds(){
     if ( lbx <= 0 || lbx >= 3){
         bounds_animation_left = 1;
         lbx -= 0.05;
@@ -57,27 +70,43 @@ int is_there_a_collision(){
         return 1;
     }
     
+    //ako su obe loptice i dalje na trakama
     return 0;
 }
+
 
 //provera da li se loptice sudaraju
 int are_players_coliding(GLfloat lbx, GLfloat lby, GLfloat lbz, GLfloat rbx, GLfloat rby, GLfloat rbz){
    
     //ako su loptice na razmaku <=0.4 (zbir njihovih poluprenika ), ne treba ih pomerati
-   if( sqrt(pow(lbx-rbx, 2) + pow(lby-rby, 2) + pow(lbz-rbz, 2)) <= 0.4 || 
-       sqrt(pow(rbx-lbx, 2) + pow(rby-lby, 2) + pow(rbz-lbz, 2)) <= 0.4
+   if( sqrt(pow(lbx - rbx, 2) + pow(lby - rby, 2) + pow(lbz - rbz, 2)) <= 0.4 || 
+       sqrt(pow(rbx - lbx, 2) + pow(rby - lby, 2) + pow(rbz - lbz, 2)) <= 0.4
    ){
         printf("player collision\n");
         return 1;
    }
    
-   //onemogucanavje da jedna loptica preskoci drugu
+   //onemogucanavje da jedna loptica preskoci drugu dok je i dalje u vazduhu
    if( rbx - lbx <= 0.4 ){
         printf("illegal jump attempt\n");
         return 1;
    }
    
+   //loptice se ne sudaraju
    return 0;
+}
+
+//provera da li neka od loptica dodiruje health drop
+int health_collision(){
+    
+    if( sqrt(pow(lbx - hx, 2) + pow(lby - hy, 2) + pow(lbz - hz, 2)) <= 0.4 ||
+        sqrt(pow(rbx - hx, 2) + pow(rby - hy, 2) + pow(rbz - hz, 2)) <= 0.4
+    ){
+        return 1;
+    }
+    
+    //nijedna ne dodiruje
+    return 0;
 }
 
 //animacija ispada leve loptice sa trake

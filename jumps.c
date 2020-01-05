@@ -1,5 +1,6 @@
 #include <GL/glut.h>
 #include "funkcije.h"
+#include <stdio.h>
 
 #define TIMER_ID1 0  //za skok leve
 #define TIMER_ID2 1  //za  skok desne
@@ -7,6 +8,9 @@
 #define TIMER_INTERVAL 20
 
 extern int game_started;
+
+//promenljiva koja cuva da li je igra pauzirana ili ne
+int paused;
 
 extern int animating_left;  //za skok leve
 int going_up_left = 1;
@@ -21,7 +25,6 @@ int going_down_right = 0;
 extern GLfloat lbx, lby, lbz;
 extern GLfloat rbx, rby, rbz;
 
-
 //koordinate prepreka, deklasisane i inicijalizovane u main.c
 extern float o1x, o1y, o1z;
 extern float o2x, o2y, o2z;
@@ -33,9 +36,13 @@ extern int jdown, ldown;
 extern int adown, ddown;
 
 //potrebno je omoguciti da se ove promenljive menjaju u ovom fajlu jer 
-//se ovde registruje restartovanje igre
+//se ovde registruje restartovanje igre, za informacije o njima pogledati fajlove u kojima su deklarisane
 extern int score;
 extern float speed_coef;
+extern int health;
+extern int should_be_drawn;
+extern float hx, hy,hz;
+extern int detecting;
 extern int bounds_animation_left;
 extern int bounds_animation_right;
 
@@ -108,19 +115,26 @@ void on_keyboard(unsigned char key, int x, int y){
         case 'p':
         case 'P':
             if(!game_started){  //pocetak igre
+                    paused = 0;
                     game_started = 1;
                     glutTimerFunc(TIMER_INTERVAL, on_timer_obstacle, TIMER_ID3);
+                    //posto taster 'p' koristimo i za pocetak igre i za pause/unpause,
+                    //ako smo pauzirali u sred animacije skoka treba ih nastaviti
+                    if (animating_left) glutTimerFunc(TIMER_INTERVAL, on_timer_left, TIMER_ID1);
+                    if (animating_right) glutTimerFunc(TIMER_INTERVAL, on_timer_right, TIMER_ID2);
             }
             else{ //ako hocemo da pauziramo i zaustavimo animacije prepreka
                 game_started = 0;
+                paused = 1;
             }
             break;
         case 'r':
         case 'R':
             //restartovanje igre, sve relevantne promenljive se vracaju na pocetne vrednosti
             game_started = 0;
-            score = 0;
+            paused = 1;
             
+            score = 0;
             speed_coef = 0.25;
             
             animating_left = 0; 
@@ -155,7 +169,16 @@ void on_keyboard(unsigned char key, int x, int y){
 
             o4x = 0;
             o4y = 0.35;
-            o4z = -20;
+            o4z = -20;     
+            
+            hx = 0;
+            hy = 0.35;
+            hz = -20;
+            
+            health = 3;
+            should_be_drawn = 1;
+        
+            detecting = 0;
             
             glutPostRedisplay();
             break;
@@ -192,7 +215,7 @@ void on_timer_left(int value){
       }
     }
     glutPostRedisplay();
-    if(animating_left){
+    if(animating_left && !paused){
         glutTimerFunc(TIMER_INTERVAL, on_timer_left, TIMER_ID1);
     }
 }
@@ -225,7 +248,7 @@ void on_timer_right(int value){
       }
     }
     glutPostRedisplay();
-    if(animating_right){
+    if(animating_right && !paused){
         glutTimerFunc(TIMER_INTERVAL, on_timer_right, TIMER_ID2);
     }
 }

@@ -21,6 +21,9 @@ GLuint names[4];
 //glavni parametar koji cuva da li je igra pokrenuta ili ne
 int game_started;
 
+//kontrola pauziranja se vrsi u jumps.c
+extern int paused;
+
 int window_width;
 int window_height;
 
@@ -43,18 +46,30 @@ float o3x = 0, o3y = 0.35, o3z = -20;
 //pocetne koordinate cetvrte prepreke
 float o4x = 0,  o4y = 0.35, o4z = -20;
 
+//koordinate za health drop
+float hx = 0, hy = 0.35, hz = -20;
+
 //oznake da li su tasteri 'a','d','j' i 'l' pritisnuti ili ne
 int jdown, ldown;
 int adown, ddown;
 
 //parametar za animaciju kamere pri prvom pokretanju igrice
-float viewParam;
+float viewParam = 0;
 
 //promenljiva koja cuva broj boodva
-int score;
+int score = 0;
+
+//broj zivota
+int health = 3;
+
+//pomocna promenljiva koja nam govori da li health drop treba da se crta ili ne
+int should_be_drawn = 1;
+
+//pomocne promenljive za detekciju sudara u slucaju kada igrac ima >1 hp
+int detecting = 0;
 
 //promenljiva koja cuva brzinu prepreka
-float speed_coef = 0.2;
+float speed_coef = 0.25;
 
 static void initialize(void){
     /*
@@ -191,8 +206,6 @@ int main(int argc,char **argv){
     
     //inicijalizacija parametara
     game_started = 0;
-    viewParam = 0;
-    score = 0;
     
     //inicijalizacija tekstura
     initialize();
@@ -228,9 +241,10 @@ void on_display(void){
     
     //animacija kamere pri prvom pokretanju igre 
     viewParam = viewParam < 3 ? viewParam : 3; 
-	gluLookAt(1.5, 4-viewParam, 0.5+viewParam, 1.5, 0, 0, 0, 1, 0);
+	gluLookAt(1.5, 4 - viewParam, 0.5 + viewParam, 1.5, 0, 0, 0, 1, 0);
     
-    //osvetljenje
+    //osvetljenje i materijali 
+    //(koristimo teksture na svemu sem na lopticama tako da se ovo odnosi samo na loptice)
     GLfloat light_pos[] = { 1.5, 2, 4, 0 };
     GLfloat light_ambi[] = { 0.2, 0.2, 0.2, 1 };
     GLfloat light_diff[] = { 0.6, 0.6, 0.6, 1 };
@@ -256,24 +270,29 @@ void on_display(void){
     draw_lanes();
 	
 
-    //ako je igra pokrenuta i ako je pritisnut taster 'a' i ako poemranjem leve loptice
+    //ako je igra pokrenuta i ako je pritisnut taster 'a' i ako pomeranjem leve loptice
     //u levo za 0.05 ne dolazi do preklapanja loptica, treba izvrsiti tu izmenu, analogno i za tastere 'd','j' i 'l'
-    if (game_started && adown && !are_players_coliding(lbx-0.05, lby, lbz, rbx, rby, rbz)){   
+    if (game_started && adown && !are_players_coliding(lbx - 0.05, lby, lbz, rbx, rby, rbz)){   
                 lbx -= 0.05;
     }
-    if (game_started && ddown && !are_players_coliding(lbx+0.05, lby, lbz, rbx, rby, rbz)){
+    if (game_started && ddown && !are_players_coliding(lbx + 0.05, lby, lbz, rbx, rby, rbz)){
                 lbx += 0.05;
     }
-    if (game_started && jdown && !are_players_coliding(lbx, lby, lbz, rbx-0.05, rby, rbz)){
+    if (game_started && jdown && !are_players_coliding(lbx, lby, lbz, rbx - 0.05, rby, rbz)){
                 rbx -= 0.05;
     }
-    if (game_started && ldown && !are_players_coliding(lbx, lby, lbz, rbx+0.05, rby, rbz)){
+    if (game_started && ldown && !are_players_coliding(lbx, lby, lbz, rbx + 0.05, rby, rbz)){
                 rbx += 0.05;
     }
     
 
 	//crtanje loptica
 	draw_balls();
+    
+    //iscrtavamo health drop na svakih 16 (moze i neki drugi broj ali mora biti broj deljiv sa 4 zbog nacina dodele poena) 
+    //poena da nebi bili previse cesti (ova provera je u obstacles.c )
+    //moze se desiti da se on preklapa sa nekom od prepreka i to ga cini redjim
+    draw_health_drop();
 	
     //iscrtavanje nasumicnih prepreka
     draw_obstacles();
@@ -318,9 +337,10 @@ void on_display(void){
     }
     
     
-    //ako je igra u toku, treba u gornjem desnom uglu prikazati
+    //ako je igra u toku, ili ako smo pauzirali igru treba u gornjem desnom uglu prikazati
     //trenutni broj poena i trenutnu brzinu kretanja prepreka
-    if(game_started){
+    //i u gornjem levom broj hp
+    if(game_started || paused){
         
         glColor3f(1, 1, 1);
         glMatrixMode(GL_PROJECTION);
@@ -334,31 +354,29 @@ void on_display(void){
         //ispis poena
         char score_msg[20];
         sprintf(score_msg,"Score:  %d",score);
-        glRasterPos2i(window_width-200, window_height-50);
+        glRasterPos2i(window_width - 200, window_height - 50);
         glutBitmapString(GLUT_BITMAP_HELVETICA_18, score_msg);
     
         //ispis brzine prepreka
         char obstacle_speed[40];
         sprintf(obstacle_speed,"Obstacle Speed:  %.2f",speed_coef);
-        glRasterPos2i(window_width-200, window_height-75);
+        glRasterPos2i(window_width - 200, window_height - 75);
         glutBitmapString(GLUT_BITMAP_HELVETICA_18, obstacle_speed);
+        
+        //remaining hp
+        char hp[30];
+        sprintf(hp,"Remaing health:  %d",health);
+        glRasterPos2i(50, window_height - 50);
+        glutBitmapString(GLUT_BITMAP_HELVETICA_18, hp);
     
         glPopMatrix();
         glMatrixMode(GL_PROJECTION);
         glPopMatrix();
     }
     
-    
-   //prekid igre ako se dodje u neko game-ending stanje 
-   if (is_there_a_collision()){
-        
-        //prekidanje svih animacija
-        game_started=0;
-        animating_left=0;
-        animating_right=0;
-       
-        //ispis odgovarajucih poruka
-        glColor3f(1, 1, 1);
+    //game paused ispis
+    if(paused){
+       glColor3f(1, 1, 1);
         glMatrixMode(GL_PROJECTION);
         glPushMatrix();
         glLoadIdentity();
@@ -367,22 +385,86 @@ void on_display(void){
         glPushMatrix();
         glLoadIdentity();
     
-        //game over ispis
-        char game_over_msg[50];
-        sprintf(game_over_msg,"   GAME OVER!\nPress 'r' to try again");
-        glRasterPos2i(window_width/2-70, window_height/2);
-        glutBitmapString(GLUT_BITMAP_TIMES_ROMAN_24, game_over_msg);
-    
-        //ispis osvojenih poena
-        char score_msg[21];
-        sprintf(score_msg,"      Your Score:  %d",score);
-        glRasterPos2i(window_width/2-70, window_height/2.5);
-        glutBitmapString(GLUT_BITMAP_HELVETICA_18, score_msg);
+        char pause_msg[20];
+        sprintf(pause_msg,"PAUSED");
+        glRasterPos2i(window_width / 2 - 50, window_height / 2);
+        glutBitmapString(GLUT_BITMAP_TIMES_ROMAN_24, pause_msg);
     
         glPopMatrix();
         glMatrixMode(GL_PROJECTION);
-        glPopMatrix();
-       
+        glPopMatrix(); 
+    }
+    
+    //uvecavamo hp brojac ako je loptica dotakla health_drop i ako je health manji od maksimalne dozvoljene vrednosti (3) 
+    //i ako detecting=0 (tj ako se loptica trenutno ne sece sa nekom preprekom. Ovo je potretno zbog
+    //slucaja gde se centri health drop-a i prepreka nalaze na istoj koordinati). 
+    //should_be_drawn koristimo za sinhronizacuju animacija prepreka i health drop-a. Kada se pokupi, zelimo da hp objekat nestane (hz=6 je van vidnog polja)
+    //i ako nebi postojala should_be_drawn promenljiva, sledece iscrtavanje hp objekta nebi bilo u istoj ravni kao prepreke, sto ne zelimo
+    if (health_collision() && health < 3 && !detecting){
+        hz = 6;
+        should_be_drawn = 0;
+        health ++;
+        printf("picked up hp\n");
+    }
+    
+    
+    //ako igrac ima vise od 1hp, sudar sa preprekom treba obraditi malo drugacije posto se sudar registruje u svakom pozivu on_display funkcije.
+    //Health umanjujemo nakon sto loptica skroz prodje kroz prepreku. Ako bi u kodu samo stajalo da se radi health--, sudar sa jednom
+    //preprekom bi umanjio brojac potencijalno za 3,4,5... puta, zavisi koliko brzo se ond_display izvrsava sto bi dovelo do nepravilnog ponasanja programa
+    if (health > 1){
+        //ulaz u prepreku
+        if (is_there_a_collision() && !detecting){
+            detecting = 1;
+        } 
+        //izlaz iz prepreke
+        if (!is_there_a_collision() && detecting){
+            detecting = 0;
+            health--;       //!! nakon sto loptica skroz prodje kroz prepreku
+        }
+    }
+    else{ //ako ima bas 1hp, dovoljno je detektovati prvi kontakt loptice sa preprekom i tu odmah staviti health = 0
+        if(is_there_a_collision()){
+            health = 0;
+        }
+    }
+    
+    //bez obrzira na health, ako neka loptica ispadne sa terena, treba odmah prekinuti igru
+    if(is_out_of_bounds()){
+        health = 0;
+    }
+    
+    //prekid igre ako je to potrebno
+    if (health == 0){
+            //prekidanje svih animacija
+            game_started = 0;
+            animating_left = 0;
+            animating_right = 0;
+        
+            //ispis odgovarajucih poruka
+            glColor3f(1, 1, 1);
+            glMatrixMode(GL_PROJECTION);
+            glPushMatrix();
+            glLoadIdentity();
+            gluOrtho2D(0, window_width, 0, window_height);
+            glMatrixMode(GL_MODELVIEW);
+            glPushMatrix();
+            glLoadIdentity();
+        
+            //game over ispis
+            char game_over_msg[50];
+            sprintf(game_over_msg,"   GAME OVER!\nPress 'r' to try again");
+            glRasterPos2i(window_width / 2 - 70, window_height / 2);
+            glutBitmapString(GLUT_BITMAP_TIMES_ROMAN_24, game_over_msg);
+        
+            //ispis osvojenih poena
+            char score_msg[21];
+            sprintf(score_msg,"      Your Score:  %d",score);
+            glRasterPos2i(window_width / 2 - 70, window_height / 2.5);
+            glutBitmapString(GLUT_BITMAP_HELVETICA_18, score_msg);
+        
+            glPopMatrix();
+            glMatrixMode(GL_PROJECTION);
+            glPopMatrix();
     }
 	
 

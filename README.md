@@ -2,8 +2,9 @@
 
 ### :memo: Opis:
 
-Igrac kontrolise dve nezavisne loptice i preskace prepreke koje se nasumicno generisu u nedogled.
-Cilj igre je izdrzati sto duze i osvojiti sto veci broj poena.
+Igrac kontrolise dve nezavisne loptice i preskace prepreke koje se nasumicno generisu u nedogled.<br>
+Cilj igre je izdrzati sto duze i osvojiti sto veci broj poena.<br>
+Pocinje se sa 3hp a na odredjenim intervalima moze(a i ne mora) se pojaviti health drop.
 
 Na sledecim brojevima poena brzina prepreka se uvecava:
 50, 100, 200, 500
